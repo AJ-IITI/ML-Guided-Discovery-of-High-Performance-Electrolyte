@@ -1,0 +1,3 @@
+Stage,Features,Target,Validation,Best_Model,MAE,RMSE,R2,Spearman
+Baseline RF,Morgan fingerprints + cation + concentration,Raw conductivity,Solvent-held-out,Random Forest,7.549,18.522,-0.132,0.244
+Improved model,Morgan fingerprints + RDKit descriptors + cation + concentration,Log conductivity,Solvent-held-out,Extra Trees,3.63,9.313,0.714,0.647
