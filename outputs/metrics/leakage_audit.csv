@@ -1,0 +1,14 @@
+Column/Feature group,Status,Reason
+cation,Used as input,Composition identity
+anion_smiles,Used as input,Anion molecular structure
+solvent_smiles,Used as input,Solvent molecular structure
+concentration_mol_kg,Used as input,Known formulation variable
+viscosity_mpa_s,Excluded from input,Property-like output
+cation_diffusivity_m2_s,Excluded from input,Property-like output
+anion_diffusivity_m2_s,Excluded from input,Property-like output
+solvent_diffusivity_m2_s,Excluded from input,Property-like output
+coordination_cation_anion,Excluded from input,Structural/property-like output
+coordination_cation_solvent,Excluded from input,Structural/property-like output
+density_g_cm3,Excluded from input,Property-like output
+tsne_x,Excluded from input,Derived visualization coordinate
+tsne_y,Excluded from input,Derived visualization coordinate

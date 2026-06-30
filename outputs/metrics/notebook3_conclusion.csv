@@ -1,0 +1,5 @@
+Finding,Evidence,Implication
+Concentration generalization is strongest,Lowest MAE and highest Spearman under Concentration GroupKFold,Model learns concentration-dependent trends reasonably well
+Anion generalization is moderate to strong,Anion GroupKFold gives moderate MAE and high Spearman,Molecular fingerprints and descriptors transfer reasonably across anions
+Solvent generalization is the main bottleneck,Solvent GroupKFold gives highest MAE and lowest Top10 precision,Next model improvements should focus on solvent representation and uncertainty
+Random split alone is insufficient,Grouped validations reveal different levels of difficulty,"Future model selection should use GroupKFold, not only train_test_split"
