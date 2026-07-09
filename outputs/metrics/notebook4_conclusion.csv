@@ -1,0 +1,6 @@
+Point addressed,What was done,Evidence generated
+Mean centering and scaling,"Continuous descriptors, concentration, viscosity and coordination features were standardized using training-fold StandardScaler.",notebook4_scaling_before_after_summary.csv and key scaling summary table
+Actual vs Predicted plots,Generated actual vs predicted and residual plots for the best Solvent GroupKFold setting.,notebook4_actual_vs_predicted_best_solvent_groupkfold.png and residual plot
+Solvent-wise performance,"Computed MAE, RMSE, bias, mean actual and mean predicted conductivity for every solvent.",notebook4_solvent_wise_error_best_model.csv and worst-solvent plot
+O-based vs N-based solvents,Classified solvents using atoms in solvent SMILES and compared family-wise error; family-specific models were explored when enough data existed.,notebook4_solvent_family_error_best_model.csv and family-specific summary if generated
+Viscosity and coordination as inputs,Compared chemistry-only scaled model against physics-augmented scaled model including viscosity and coordination numbers.,notebook4_physics_feature_impact.csv and feature block importance table

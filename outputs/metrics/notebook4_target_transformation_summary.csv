@@ -1,0 +1,3 @@
+Quantity,Transformation,Min,Max,Mean,Std
+Ionic conductivity target,Original/raw value,0.00012571,127.1093345,6.135085926026631,12.750394332287833
+Ionic conductivity target,log10(value + 1e-6),-3.897189109083085,2.1041774483293567,0.12693262775526903,0.8738428946902033

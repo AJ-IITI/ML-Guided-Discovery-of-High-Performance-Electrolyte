@@ -1,0 +1,9 @@
+Feature group,Status in Notebook 4,Reason
+Cation identity,Used in both models,Known formulation identity
+Anion SMILES → Morgan fingerprint + RDKit descriptors,Used in both models,Known molecular structure
+Solvent SMILES → Morgan fingerprint + RDKit descriptors,Used in both models,Known molecular structure
+Concentration,Used in both models,Known formulation variable
+Viscosity,Used only in physics-augmented model,Sir suggested including it because it is physically solvent-dependent
+Coordination numbers,Used only in physics-augmented model,Sir suggested including ion-solvent / ion-anion coordination information
+Cation/anion/solvent diffusivity,Still excluded from main model,Very directly related to conductivity; can inflate performance as a leakage-like transport proxy
+Density and t-SNE coordinates,Excluded,Not part of the requested update and not required for this diagnostic notebook

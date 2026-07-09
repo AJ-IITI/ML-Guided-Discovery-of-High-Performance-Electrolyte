@@ -1,0 +1,5 @@
+Model,Training detail,Equivalent iteration detail
+Dummy Mean,Predicts mean target,No trainable ensemble
+Random Forest,300 decision trees,n_estimators = 300
+Extra Trees,300 extremely randomized trees,n_estimators = 300
+Gradient Boosting,Sequential boosting model,Default n_estimators = 100 boosting stages

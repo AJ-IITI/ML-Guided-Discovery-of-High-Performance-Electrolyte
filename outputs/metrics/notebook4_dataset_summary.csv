@@ -1,0 +1,9 @@
+Item,Value
+Total raw formulations,5616.0
+Usable rows after target cleaning,5595.0
+Unique cations,3.0
+Unique anions,9.0
+Unique solvents,26.0
+Unique concentration levels,8.0
+Minimum concentration (mol/kg),0.5
+Maximum concentration (mol/kg),4.0
