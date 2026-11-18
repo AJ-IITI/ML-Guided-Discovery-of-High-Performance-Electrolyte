@@ -70,8 +70,7 @@ def predict(request: PredictionRequest) -> dict[str, Any]:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
     except DatasetError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
-    all_results = registry.predict(record)
-    results = {name: all_results[name] for name in selected}
+    results = registry.predict(record, selected)
     ready = [value for value in results.values() if value["status"] == "ok"]
     if not ready:
         raise HTTPException(status_code=503, detail={"message": "The website is running, but trained model adapters are not connected yet.", "models": results})
