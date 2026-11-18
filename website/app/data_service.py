@@ -1,99 +1,98 @@
-from __future__ import annotations
+"""Explore the repository's MD snapshot. No model features or imputation here."""
+import csv
+import math
 import os
+from collections import Counter, defaultdict
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
-import numpy as np
-import pandas as pd
+from statistics import median
 
-DEFAULT_DATA = Path(__file__).resolve().parents[2] / "data" / "raw" / "oedb_electrolytes_v2026_05_11.csv"
-
-RENAME_MAP = {
-    "ID": "id", "exp-ID": "exp_id", "Cation": "cation", "Anion": "anion",
-    "Solvent": "solvent", "Concentration (mol/kg)": "concentration_mol_kg",
-    "Ionic Conductivity (mS/cm)": "ionic_conductivity_ms_cm",
-    "Viscosity (mPa·s)": "viscosity_mpa_s",
-    "Cation's Diffusivity (m²/s)": "cation_diffusivity_m2_s",
-    "Anion's Diffusivity (m²/s)": "anion_diffusivity_m2_s",
-    "Solvent's Diffusivity (m²/s)": "solvent_diffusivity_m2_s",
-    "Coordination (Cation←Anion)": "coordination_cation_anion",
-    "Coordination (Cation ← Solvent)": "coordination_cation_solvent",
-    "Density (g/cm³)": "density_g_cm3", "Anion SMILES": "anion_smiles",
-    "Solvent SMILES": "solvent_smiles", "Anion PubChem CID": "anion_pubchem_cid",
-    "Solvent PubChem CID": "solvent_pubchem_cid", "x": "tsne_x", "y": "tsne_y",
+DEFAULT_DATA = Path(__file__).resolve().parents[2] / "data/raw/oedb_electrolytes_v2026_05_11.csv"
+TARGET = "ionic_conductivity_ms_cm"
+CONC = "concentration_mol_kg"
+FIELDS = {
+    "id": "ID", "cation": "Cation", "anion": "Anion", "solvent": "Solvent",
+    CONC: "Concentration (mol/kg)", TARGET: "Ionic Conductivity (mS/cm)",
+    "viscosity_mpa_s": "Viscosity (mPa·s)", "coordination_cation_anion": "Coordination (Cation←Anion)",
+    "coordination_cation_solvent": "Coordination (Cation ← Solvent)", "experimental_reference": "exp-ID"
 }
-TARGET_COLUMNS = {"ionic_conductivity_ms_cm", "log_conductivity", "conductivity", "target"}
-
-class DatasetError(RuntimeError): pass
-class UnsupportedFormulation(ValueError): pass
-class AmbiguousFormulation(ValueError): pass
-
-def _dataset_path() -> Path:
-    configured = os.getenv("OEDB_DATA_PATH")
-    if not configured: return DEFAULT_DATA
-    path = Path(configured).expanduser()
-    return path if path.is_absolute() else (Path.cwd() / path).resolve()
+# Display labels for this snapshot; codes defining the supported domain come from the CSV.
+SOLVENT_NAMES = {
+    'AN':'Acetonitrile','Ac':'Acetone','Ac2O':'Acetic anhydride','BC':'trans-2,3-Butylene carbonate',
+    'DEC':'Diethyl carbonate','DMC':'Dimethyl carbonate','DMI':'1,3-Dimethyl-2-imidazolidinone',
+    'DMSO':'Dimethyl sulfoxide','EA':'Ethyl acetate','EB':'Ethyl butyrate','EC':'Ethylene carbonate',
+    'EMC':'Ethyl methyl carbonate','EP':'Ethyl propionate','FAN':'Fluoroacetonitrile','FEA':'2-Fluoroethyl acetate',
+    'FEC':'Fluoroethylene carbonate','FEMC':'Methyl 2,2,2-trifluoroethyl carbonate','GBL':'Gamma-butyrolactone',
+    'GN':'Glutaronitrile','MA':'Methyl acetoacetate','MB':'Methyl butyrate','MP':'Methyl pyruvate',
+    'PC':'Propylene carbonate','SN':'Succinonitrile','TEP':'Triethyl phosphate','TMP':'Trimethyl phosphate'
+}
+class DatasetError(Exception):
+    pass
 
 @lru_cache(maxsize=1)
-def get_dataset() -> pd.DataFrame:
-    path = _dataset_path()
-    if not path.exists():
-        raise DatasetError(f"OEDB dataset not found at {path}. Set OEDB_DATA_PATH.")
-    data = pd.read_csv(path, encoding="utf-8-sig").rename(columns=RENAME_MAP).copy()
-    required = {"cation", "anion", "solvent", "concentration_mol_kg", "ionic_conductivity_ms_cm"}
-    missing = required.difference(data.columns)
-    if missing: raise DatasetError("Dataset is missing columns: " + ", ".join(sorted(missing)))
-    for column in ("cation", "anion", "solvent"):
-        data[column] = data[column].astype(str).str.strip()
-    data["concentration_mol_kg"] = pd.to_numeric(data["concentration_mol_kg"], errors="coerce")
-    data["ionic_conductivity_ms_cm"] = pd.to_numeric(data["ionic_conductivity_ms_cm"], errors="coerce")
-    return data
+def dataset():
+    path = Path(os.environ.get("OEDB_DATA_PATH", DEFAULT_DATA))
+    rows = []
+    try:
+        with path.open(encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+            if set(FIELDS.values()) - set(reader.fieldnames or ()):
+                raise DatasetError("Dataset schema does not match the OEDB snapshot.")
+            for raw in reader:
+                r = {k: raw[v].strip() for k,v in FIELDS.items()}
+                r["id"] = int(r["id"])
+                for key in (CONC, TARGET, "viscosity_mpa_s","coordination_cation_anion","coordination_cation_solvent"):
+                    r[key] = None if key == TARGET and not r[key] else float(r[key])
+                    if r[key] is not None and not math.isfinite(r[key]):
+                        raise DatasetError("Non-finite value in source dataset.")
+                r["experimental_reference"] = r["experimental_reference"] or None
+                r["solvent_name"] = SOLVENT_NAMES.get(r["solvent"], r["solvent"])
+                rows.append(r)
+    except (OSError, ValueError, KeyError) as exc:
+        raise DatasetError("Cannot read the OEDB snapshot. Check OEDB_DATA_PATH.") from exc
+    if not rows or len({r['id'] for r in rows}) != len(rows):
+        raise DatasetError("Empty snapshot or duplicate source IDs.")
+    return tuple(sorted(rows,key=lambda r:r['id']))
 
-def get_options() -> dict[str, Any]:
-    data = get_dataset()
-    return {
-        "cations": sorted(data["cation"].dropna().unique().tolist()),
-        "anions": sorted(data["anion"].dropna().unique().tolist()),
-        "solvents": sorted(data["solvent"].dropna().unique().tolist()),
-        "concentrations_mol_kg": sorted(data["concentration_mol_kg"].dropna().unique().astype(float).tolist()),
-        "temperature_K": 298,
-        "temperature_note": "Initial fixed interface assumption; not passed as a model feature unless the validated training pipeline requires it.",
-        "dataset_rows": int(len(data)),
-        "dataset_file": _dataset_path().name,
-    }
+@lru_cache(maxsize=1)
+def domain():
+    return {(r["cation"],r["anion"],r["solvent"],r[CONC]) for r in dataset()}
 
-def lookup_formulation(cation: str, anion: str, solvent: str, concentration_mol_kg: float) -> dict[str, Any]:
-    data = get_dataset()
-    concentration = float(concentration_mol_kg)
-    mask = (
-        data["cation"].eq(cation) & data["anion"].eq(anion) & data["solvent"].eq(solvent)
-        & np.isclose(data["concentration_mol_kg"].to_numpy(dtype=float), concentration, rtol=0, atol=1e-8, equal_nan=False)
-    )
-    matches = data.loc[mask]
-    if matches.empty:
-        raise UnsupportedFormulation("This exact composition and concentration is not present in the current OEDB model lookup domain.")
-    if len(matches) > 1:
-        raise AmbiguousFormulation("Multiple OEDB rows match this composition. The lookup key must be disambiguated before inference.")
-    row = matches.iloc[0].to_dict()
-    # Leakage guard: the conductivity target, row identifiers and t-SNE coordinates never reach model adapters.
-    for key in list(row):
-        if key in TARGET_COLUMNS or key in {"id", "exp_id", "tsne_x", "tsne_y"}:
-            row.pop(key, None)
-    return row
+def summary():
+    rows=dataset()
+    labels=[r[TARGET] for r in rows if r[TARGET] is not None]
+    choices={k:sorted({r[k] for r in rows}) for k in ('cation','anion','solvent',CONC)}
+    return dict(rows=len(rows),labelled=len(labels),missing=len(rows)-len(labels),
+                experimental_references=sum(r['experimental_reference'] is not None for r in rows),
+                median_conductivity=median(labels) if labels else None,temperature_K=298,
+                source='OEDB molecular dynamics',snapshot='2026-05-11',choices=choices,
+                solvent_names={s:SOLVENT_NAMES.get(s,s) for s in choices['solvent']},
+                systems=len({k[:3] for k in domain()}))
 
-def explore_rows(cation: str | None = None, anion: str | None = None, solvent: str | None = None, limit: int = 250) -> dict[str, Any]:
-    data = get_dataset()
-    filtered = data.copy()
-    if cation: filtered = filtered[filtered["cation"] == cation]
-    if anion: filtered = filtered[filtered["anion"] == anion]
-    if solvent: filtered = filtered[filtered["solvent"] == solvent]
-    columns = ["id", "cation", "anion", "solvent", "concentration_mol_kg", "ionic_conductivity_ms_cm", "viscosity_mpa_s", "density_g_cm3"]
-    columns = [c for c in columns if c in filtered.columns]
-    view = filtered[columns].head(max(1, min(int(limit), 1000)))
-    return {
-        "total_matching": int(len(filtered)),
-        "returned": int(len(view)),
-        "records": view.astype(object).where(pd.notna(view), None).to_dict(orient="records"),
-        "concentration": filtered["concentration_mol_kg"].fillna(0).astype(float).tolist(),
-        "conductivity": filtered["ionic_conductivity_ms_cm"].fillna(0).astype(float).tolist(),
-    }
+def select(q='',cation=None,anion=None,solvent=None,availability=None,concentration=None):
+    words=q.strip().casefold().split()
+    for r in dataset():
+        if any(v is not None and r[k]!=v for k,v in (('cation',cation),('anion',anion),('solvent',solvent),(CONC,concentration))):
+            continue
+        if availability=='reported' and r[TARGET] is None or availability=='missing' and r[TARGET] is not None:
+            continue
+        if words:
+            hay=' '.join(str(r[k] or '') for k in ('id','cation','anion','solvent','solvent_name','experimental_reference')).casefold()
+            if not all(w in hay for w in words): continue
+        yield r
+
+def figures(rows):
+    # Counts are over every filtered record, not the visible table page.
+    valid=[r for r in rows if r[TARGET] is not None]
+    bins=Counter(); trend=defaultdict(list); sol=defaultdict(list)
+    for r in valid:
+        y=r[TARGET]
+        # Zero is distinct from a missing result (no zeros in the pinned snapshot).
+        if y>0: bins[math.floor(math.log10(y))]+=1
+        trend[r['cation'],r[CONC]].append(y)
+        sol[r['solvent']].append(y)
+    return dict(total=len(rows),n=len(valid),missing=len(rows)-len(valid),
+        nonpositive=sum(r[TARGET]<=0 for r in valid),
+        histogram=[dict(low=10.**e,high=10.**(e+1),count=bins[e]) for e in range(min(bins),max(bins)+1)] if bins else [],
+        trend=[dict(cation=c,x=x,median=median(v),n=len(v)) for (c,x),v in sorted(trend.items())],
+        solvents=sorted([dict(code=s,name=SOLVENT_NAMES.get(s,s),median=median(v),n=len(v)) for s,v in sol.items()],key=lambda x:(-x['median'],x['code'])))
