@@ -32,17 +32,23 @@ class ModelRegistry:
         }
         return {name: {"loaded": self.predictors[name] is not None, "version": versions[name], "error": self.errors[name]} for name in ("hgb_svr", "smited")}
 
-    def predict(self, record: dict[str, Any]) -> dict[str, Any]:
+    def predict(self, record: dict[str, Any], selected: set[str] | None = None) -> dict[str, Any]:
+        selected = selected or {"hgb_svr", "smited"}
         results: dict[str, Any] = {}
         for name in ("hgb_svr", "smited"):
+            if name not in selected:
+                continue
             predictor = self.predictors[name]
             if predictor is None:
                 results[name] = {"status": "not_loaded", "message": self.errors[name], "conductivity_mS_cm": None, "interval_mS_cm": None}
                 continue
-            value = float(predictor.predict_record(record))
-            if value < 0:
-                raise ValueError(f"{name} returned negative conductivity ({value}); check inverse target transformation.")
-            results[name] = {"status": "ok", "conductivity_mS_cm": value, "interval_mS_cm": None, "message": "Prediction interval not calibrated yet."}
+            try:
+                value = float(predictor.predict_record(record))
+                if value < 0:
+                    raise ValueError(f"Adapter returned negative conductivity ({value}); check inverse target transformation.")
+                results[name] = {"status": "ok", "conductivity_mS_cm": value, "interval_mS_cm": None, "message": "Prediction interval not calibrated yet."}
+            except Exception as exc:
+                results[name] = {"status": "error", "message": f"{type(exc).__name__}: {exc}", "conductivity_mS_cm": None, "interval_mS_cm": None}
         return results
 
 registry = ModelRegistry()
