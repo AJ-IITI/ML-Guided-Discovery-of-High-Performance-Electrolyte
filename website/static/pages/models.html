@@ -1,5 +1,91 @@
-<div class="folio"><span class="kicker">Research tools / 03</span><span class="rule"></span><span>Model methods</span></div>
-<div class="page-head"><div class="overline"><i></i> Methods &amp; evaluation</div><h1>Conductivity models</h1><p>Two models approach the same regression problem with different representations. Their weights are offline in this release; the descriptions below define what will be connected.</p></div>
-<section class="method"><div class="method-id">01 / TABULAR</div><div><div class="section-line"><h2>HGB-SVR</h2><span data-status="hgb_svr" class="badge">Checking status…</span></div><p>A histogram gradient boosting model accounts for a concentration–viscosity trend and learns a correction. A support vector regressor provides a second estimate. The historical baseline combines the two in log-conductivity space.</p><dl><dt>Input representation</dt><dd>47 original numerical features: ion identities, solvent and anion descriptors, concentration and its derived terms, log viscosity, coordination and derived ratios.</dd><dt>Prediction target</dt><dd>log₁₀(σ + 10⁻⁶), with σ expressed in mS/cm. The original inverse transformation is required for reported conductivity.</dd></dl><h3>HGB-SVR performance</h3><p class="pending">Validation and test metrics await verification against the original fitted pipeline.</p></div></section>
-<section class="method"><div class="method-id">02 / MOLECULAR</div><div><div class="section-line"><h2>SMI-TED</h2><span data-status="smited" class="badge">Checking status…</span></div><p>The selected partial fine-tuning model represents the electrolyte as a sequence of molecular structures and composition values. Part of the pretrained encoder is fine-tuned for conductivity prediction. Its learned molecular representation is combined with the physical features.</p><dl><dt>Input representation</dt><dd>A 768-dimensional molecular representation from the original tokenization and encoding pipeline, combined with the original 47 numerical features.</dd><dt>Required artifacts</dt><dd>The generic base checkpoint, selected partial fine-tuning checkpoint, tokenizer, exact formulation builder, trained fusion head and fitted numerical preprocessing.</dd></dl><h3>SMI-TED performance</h3><p class="pending">Validation and test metrics await verification against the original partial fine-tuning run.</p></div></section>
-<section class="eval-note"><div class="overline">Comparison protocol</div><h2>Compare like with like</h2><p>Use matching record IDs and the same split for both models. Select on validation log RMSE, then report held-out raw R², log R², MAE (mS/cm) and log RMSE. Report complete-solvent holdout separately from random-split interpolation.</p><a class="textlink" href="/predict">Open the formulation workspace →</a></section>
+<div class="folio">
+  <span class="kicker">Research tools / 03</span><span class="rule"></span
+  ><span>Model methods</span>
+</div>
+<div class="page-head">
+  <div class="overline"><i></i> Methods &amp; evaluation</div>
+  <h1>Conductivity models</h1>
+  <p>
+    Two models approach the same regression problem with different
+    representations. Their weights are offline in this release; the descriptions
+    below define what will be connected.
+  </p>
+</div>
+<section class="method">
+  <div class="method-id">01 / TABULAR</div>
+  <div>
+    <div class="section-line">
+      <h2>HGB-SVR</h2>
+      <span data-status="hgb_svr" class="badge">Checking status…</span>
+    </div>
+    <p>
+      A histogram gradient boosting model accounts for a concentration–viscosity
+      trend and learns a correction. A support vector regressor provides a
+      second estimate. The historical baseline combines the two in
+      log-conductivity space.
+    </p>
+    <dl>
+      <dt>Input representation</dt>
+      <dd>
+        47 original numerical features: ion identities, solvent and anion
+        descriptors, concentration and its derived terms, log viscosity,
+        coordination and derived ratios.
+      </dd>
+      <dt>Prediction target</dt>
+      <dd>
+        log₁₀(σ + 10⁻⁶), with σ expressed in mS/cm. The original inverse
+        transformation is required for reported conductivity.
+      </dd>
+    </dl>
+    <h3>HGB-SVR performance</h3>
+    <p class="pending">
+      Validation and test metrics await verification against the original fitted
+      pipeline.
+    </p>
+  </div>
+</section>
+<section class="method">
+  <div class="method-id">02 / MOLECULAR</div>
+  <div>
+    <div class="section-line">
+      <h2>SMI-TED</h2>
+      <span data-status="smited" class="badge">Checking status…</span>
+    </div>
+    <p>
+      The selected partial fine-tuning model represents the electrolyte as a
+      sequence of molecular structures and composition values. Part of the
+      pretrained encoder is fine-tuned for conductivity prediction. Its learned
+      molecular representation is combined with the physical features.
+    </p>
+    <dl>
+      <dt>Input representation</dt>
+      <dd>
+        A 768-dimensional molecular representation from the original
+        tokenization and encoding pipeline, combined with the original 47
+        numerical features.
+      </dd>
+      <dt>Required artifacts</dt>
+      <dd>
+        The generic base checkpoint, selected partial fine-tuning checkpoint,
+        tokenizer, exact formulation builder, trained fusion head and fitted
+        numerical preprocessing.
+      </dd>
+    </dl>
+    <h3>SMI-TED performance</h3>
+    <p class="pending">
+      Validation and test metrics await verification against the original
+      partial fine-tuning run.
+    </p>
+  </div>
+</section>
+<section class="eval-note">
+  <div class="overline">Comparison protocol</div>
+  <h2>Compare like with like</h2>
+  <p>
+    Use matching record IDs and the same split for both models. Select on
+    validation log RMSE, then report held-out raw R², log R², MAE (mS/cm) and
+    log RMSE. Report complete-solvent holdout separately from random-split
+    interpolation.
+  </p>
+  <a class="textlink" href="/predict">Open the formulation workspace →</a>
+</section>

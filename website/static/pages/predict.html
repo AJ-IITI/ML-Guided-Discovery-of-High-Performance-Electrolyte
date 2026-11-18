@@ -1,8 +1,91 @@
-<div class="folio"><span class="kicker">Research tools / 02</span><span class="rule"></span><span>Formulation workspace</span></div>
-<div class="page-head"><div class="overline"><i></i> Prediction</div><h1>Predict ionic conductivity</h1><p>Specify an OEDB formulation and its physical properties. The form checks inputs now; predictions will be available when the trained models are connected.</p></div>
-<div class="workspace"><form id="prediction-form" class="form-panel"><div class="section-line"><h2>Formulation inputs</h2><span class="badge">298 K · fixed</span></div>
-<fieldset><legend>01 &nbsp; Composition</legend><div class="form-grid"><label>Cation<select name="cation" required></select></label><label>Anion<select name="anion" required></select></label><label>Solvent<select name="solvent" required></select></label><label>Concentration (mol/kg)<select name="concentration_mol_kg" required></select></label></div></fieldset>
-<fieldset><legend>02 &nbsp; Physical properties</legend><label>Viscosity (mPa·s)<input name="viscosity_mpa_s" type="number" step="any" min="0" inputmode="decimal" required></label><div class="form-grid"><label>Cation–anion coordination number<input name="coordination_cation_anion" type="number" step="any" min="0" inputmode="decimal" required></label><label>Cation–solvent coordination number<input name="coordination_cation_solvent" type="number" step="any" min="0" inputmode="decimal" required></label></div><p class="hint">Coordination numbers are dimensionless averages and may be fractional. All three properties must be positive.</p></fieldset>
-<div class="actions"><button class="button primary" type="submit">Validate formulation <span>→</span></button><button class="link-button" id="example" type="button">Use a dataset example</button></div><p class="message" id="form-result" role="status"></p></form>
-<section class="output-panel"><div class="overline">Model outputs</div><h2>Conductivity estimates</h2><p class="hint">Results are expressed in mS/cm.</p><div id="model-panels"></div>
-<div class="compare"><strong>Model comparison</strong><p id="comparison">Requires predictions from both models.</p><strong>Uncertainty interval</strong><p>Not available. No calibrated interval has been published here.</p></div><a class="textlink" href="/models">Review model methods →</a></section></div>
+<div class="folio">
+  <span class="kicker">Research tools / 02</span><span class="rule"></span
+  ><span>Formulation workspace</span>
+</div>
+<div class="page-head">
+  <div class="overline"><i></i> Prediction</div>
+  <h1>Predict ionic conductivity</h1>
+  <p>
+    Specify an OEDB formulation and its physical properties. The form checks
+    inputs now; predictions will be available when the trained models are
+    connected.
+  </p>
+</div>
+<div class="workspace">
+  <form id="prediction-form" class="form-panel">
+    <div class="section-line">
+      <h2>Formulation inputs</h2>
+      <span class="badge">298 K · fixed</span>
+    </div>
+    <fieldset>
+      <legend>01 &nbsp; Composition</legend>
+      <div class="form-grid">
+        <label>Cation<select name="cation" required></select></label
+        ><label>Anion<select name="anion" required></select></label
+        ><label>Solvent<select name="solvent" required></select></label
+        ><label
+          >Concentration (mol/kg)<select
+            name="concentration_mol_kg"
+            required
+          ></select
+        ></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>02 &nbsp; Physical properties</legend>
+      <label
+        >Viscosity (mPa·s)<input
+          name="viscosity_mpa_s"
+          type="number"
+          step="any"
+          min="0"
+          inputmode="decimal"
+          required
+      /></label>
+      <div class="form-grid">
+        <label
+          >Cation–anion coordination number<input
+            name="coordination_cation_anion"
+            type="number"
+            step="any"
+            min="0"
+            inputmode="decimal"
+            required /></label
+        ><label
+          >Cation–solvent coordination number<input
+            name="coordination_cation_solvent"
+            type="number"
+            step="any"
+            min="0"
+            inputmode="decimal"
+            required
+        /></label>
+      </div>
+      <p class="hint">
+        Coordination numbers are dimensionless averages and may be fractional.
+        All three properties must be positive.
+      </p>
+    </fieldset>
+    <div class="actions">
+      <button class="button primary" type="submit">
+        Validate formulation <span>→</span></button
+      ><button class="link-button" id="example" type="button">
+        Use a dataset example
+      </button>
+    </div>
+    <p class="message" id="form-result" role="status"></p>
+  </form>
+  <section class="output-panel">
+    <div class="overline">Model outputs</div>
+    <h2>Conductivity estimates</h2>
+    <p class="hint">Results are expressed in mS/cm.</p>
+    <div id="model-panels"></div>
+    <div class="compare">
+      <strong>Model comparison</strong>
+      <p id="comparison">Requires predictions from both models.</p>
+      <strong>Uncertainty interval</strong>
+      <p>Not available. No calibrated interval has been published here.</p>
+    </div>
+    <a class="textlink" href="/models">Review model methods →</a>
+  </section>
+</div>

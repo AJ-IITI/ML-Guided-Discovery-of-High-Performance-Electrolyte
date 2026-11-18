@@ -1,9 +1,53 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{{title}} · Electrolyte Atlas</title><meta name="description" content="Explore OEDB simulation records and study ionic conductivity at 298 K.">
-<link rel="icon" href="/static/mark.svg"><link rel="stylesheet" href="/static/styles.css"><script type="module" src="/static/app.js"></script></head>
-<body data-page="{{page}}"><a class="skip" href="#main">Skip to content</a>
-<header><div class="container mast"><a class="brand" href="/"><img src="/static/mark.svg" alt="" width="35" height="35">Electrolyte Atlas</a>
-<nav aria-label="Main navigation">{{nav}}</nav><a class="source" href="https://github.com/AJ-IITI/ML-Guided-Discovery-of-High-Performance-Electrolyte/tree/website-mvp">Project repository <span aria-hidden="true">↗</span></a></div></header>
-<main id="main" class="container">{{body}}<p class="alert" id="error" role="alert" hidden></p></main>
-<footer><div class="container foot"><span><strong>Electrolyte Atlas</strong> &nbsp; / &nbsp; Ionic conductivity research</span><div><a href="https://doi.org/10.1038/s41524-026-02093-y">Dataset citation ↗</a><a href="/docs">API documentation ↗</a></div></div></footer></body></html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{{title}} · Electrolyte Atlas</title>
+    <meta
+      name="description"
+      content="Explore OEDB simulation records and study ionic conductivity at 298 K."
+    />
+    <link rel="icon" href="/static/mark.svg" />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script type="module" src="/static/app.js"></script>
+  </head>
+  <body data-page="{{page}}">
+    <a class="skip" href="#main">Skip to content</a>
+    <header>
+      <div class="container mast">
+        <a class="brand" href="/"
+          ><img
+            src="/static/mark.svg"
+            alt=""
+            width="35"
+            height="35"
+          />Electrolyte Atlas</a
+        >
+        <nav aria-label="Main navigation">{{nav}}</nav>
+        <a
+          class="source"
+          href="https://github.com/AJ-IITI/ML-Guided-Discovery-of-High-Performance-Electrolyte/tree/website-mvp"
+          >Project repository <span aria-hidden="true">↗</span></a
+        >
+      </div>
+    </header>
+    <main id="main" class="container">
+      {{body}}
+      <p class="alert" id="error" role="alert" hidden></p>
+    </main>
+    <footer>
+      <div class="container foot">
+        <span
+          ><strong>Electrolyte Atlas</strong> &nbsp; / &nbsp; Ionic conductivity
+          research</span
+        >
+        <div>
+          <a href="https://doi.org/10.1038/s41524-026-02093-y"
+            >Dataset citation ↗</a
+          ><a href="/docs">API documentation ↗</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

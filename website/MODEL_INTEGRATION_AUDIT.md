@@ -1,48 +1,27 @@
-# Model integration audit — website MVP
+# Enabling the original models in Phase 2
 
-## Repository assets verified
+**Phase 1 state:** the OEDB snapshot and research code are available; the IIT cluster artifacts have not been loaded or verified here. Both adapters return `MODEL_NOT_LOADED`. No reported test score, prediction interval or numeric prediction is exposed as a portal result.
 
-- Repository: AJ-IITI/ML-Guided-Discovery-of-High-Performance-Electrolyte
-- Website branch: website-mvp
-- Dataset file present: data/raw/oedb_electrolytes_v2026_05_11.csv
-- Dataset version: 2026-05-11
-- Dataset record count in the existing project notes: 5,595 labelled rows
-- Source notebooks present: notebooks/01 through notebooks/05
-- Existing outputs include historical analysis CSVs and figures.
+## Input boundary
 
-The repository dataset exposes composition, concentration, conductivity target, viscosity, cation/anion/solvent diffusivities, coordination values, density, anion/solvent SMILES, PubChem identifiers and t-SNE coordinates.
+The form and POST schema accept cation, anion, solvent, concentration (mol/kg), viscosity (mPa·s), cation–anion coordination and cation–solvent coordination. The fixed temperature is 298 K. The backend checks the composition–molality tuple against the dataset, then passes only the seven user values plus temperature metadata to the adapters. Do not replace viscosity or coordination with a source lookup. Do not append temperature to the trained feature vector unless the original inference pipeline did so.
 
-## SMI-TED findings from the current research work
+Resolve molecular metadata from the approved identity table and use the **original** feature code. Do not pass the entire OEDB row. Conductivity, Nernst–Einstein conductivity, diffusivities, source IDs, experimental reference IDs and visualization coordinates must never enter the prediction vector.
 
-- Selected candidate for initial portal integration: Partial fine-tuning, seed 42.
-- Best validation log RMSE reported in the current project discussion: 0.2567.
-- SMI-TED representation: 768-dimensional molecular representation plus 47 numerical features.
-- The fine-tuned checkpoint is on the IIT server under the local SMI-TED project outputs; it is not stored in this GitHub repository.
-- The exact inference script, tokenizer path, feature ordering and checkpoint path must be confirmed from the server before writing the adapter.
+## Required artifacts
 
-## HGB-SVR findings
+| Adapter | Required originals |
+| --- | --- |
+| `HGBSVRPredictor` | Fitted HGB correction model and its Walden baseline, fitted SVR, final blend parameters, exact feature generator and ordered 47-feature manifest, encoders, scaling/imputation objects from training, original target and inverse-transform code. |
+| `SMITEDPredictor` | The selected Partial FT checkpoint and compatible generic SMI-TED base checkpoint, tokenizer/vocabulary, architecture/configuration, formulation-to-token builder, original molecular embedding and pooling, original numerical preprocessing and 47-feature order, and the trained fusion/regression head. |
+| Both | Dataset version/hash, original code revision and dependency versions, split and row-ID manifests, standalone inference command, trusted artifact hashes and paired reference predictions. |
 
-- HGB-SVR is a separate trained tabular model from the user's current research workflow.
-- Its exact fitted artifact path, preprocessing object, feature order and inference code are not present in this repository inspection.
-- Do not retrain or approximate HGB-SVR for the website.
+Artifact paths on the cluster are not assumed. Bank the reference predictions before changing dependencies or porting code. Use training-fitted preprocessing without refitting. Keep separate model environments if necessary.
 
-## Model input policy
+## Adapter and release checks
 
-The user-facing form is cation, anion, solvent and concentration. The backend performs exact lookup in the model's training-domain OEDB table and passes a target-free record to the model-specific adapter.
-
-The adapter must use the exact preprocessing and feature-generation pipeline from the original training run. Conductivity target, row IDs and t-SNE coordinates must not enter the model input.
-
-The initial interface displays 298 K as a fixed assumption. It must not be added to model inputs unless the original training pipeline explicitly requires it.
-
-## Blocking items before real inference is enabled
-
-1. Locate and expose the selected SMI-TED checkpoint and its original inference code.
-2. Locate the fitted HGB-SVR artifact and its complete preprocessing pipeline.
-3. Confirm the exact OEDB file and 47-feature manifest used by the current SMI-TED training run.
-4. Implement both adapters against their original inference code.
-5. Compare adapter predictions against the original standalone inference scripts on several fixed formulations.
-6. Only then mark both models as loaded.
-
-## Prediction intervals
-
-The MVP intentionally returns no numerical uncertainty interval. A separate calibration split and a documented calibration method must be used before displaying an error range.
+1. Implement the original inference call in `app/adapters/hgb_svr.py` or `app/adapters/smited.py` using the `Predictor` protocol. Keep their lifecycles independent. Missing artifacts or a failed check must leave that adapter unavailable; loading a base checkpoint alone does not constitute a fitted conductivity model.
+2. Reproduce the stored per-row predictions, both in the training target space and after the original inverse transform to mS/cm. Cover different ions, solvents, molalities and conductivity levels. Compare to a documented numeric tolerance appropriate to the original runtime; stop on an unexplained mismatch. The HGB correction term or a standalone transformer embedding is not a conductivity prediction.
+3. Only then extend the Phase 1 `/api/predict` response dispatcher and browser output renderer for loaded and partially loaded states. Return values only for verified adapters. Keep the other model, comparison and interval null when they are unavailable. Test single-model, both-model and partial-failure cases.
+4. Document metrics from the same manifest and evaluation setup for each model. Separate the random split from complete-solvent holdout. Validation selects checkpoints; keep test data out of selection. Publish comparisons only after identical row IDs, targets, units and transformation rules are confirmed.
+5. Enable uncertainty intervals only after documenting a separate calibration procedure, evaluation of coverage and applicability domain. Do not use the difference between two predictors as an uncertainty interval.
