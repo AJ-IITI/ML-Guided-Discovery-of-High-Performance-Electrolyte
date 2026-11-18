@@ -1,53 +1,9 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Ionic conductivity prediction and electrolyte data exploration.">
-<title>Electrolyte Intelligence</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/styles.css"><script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-</head>
-<body>
-<header class="topbar">
-<a class="brand" href="/"><span class="brand-mark">E</span><span>Electrolyte <strong>Intelligence</strong></span></a>
-<nav aria-label="Main navigation"><button class="nav-link active" data-view="predict">Predict</button><button class="nav-link" data-view="explore">Explore data</button><button class="nav-link" data-view="about">About</button></nav>
-<span class="status-pill"><span class="status-dot"></span><span id="header-status">Connecting</span></span>
-</header>
-<main>
-<section class="hero"><div class="eyebrow">ELECTROLYTE PROPERTY PLATFORM</div><h1>Understand and predict<br><span>ionic conductivity.</span></h1><p>Explore OEDB formulations and compare predictions from two independent machine-learning models.</p></section>
-<section id="view-predict" class="view active">
-<div class="section-heading"><div><div class="eyebrow">01 / PREDICTION</div><h2>Electrolyte composition</h2><p>Choose a formulation from the current OEDB model domain.</p></div><div class="temperature-chip">Temperature <strong>298 K</strong></div></div>
-<div class="workspace">
-<form id="prediction-form" class="input-panel">
-<label>Cation<select id="cation" required><option value="">Loading…</option></select></label>
-<label>Anion<select id="anion" required><option value="">Loading…</option></select></label>
-<label>Solvent<select id="solvent" required><option value="">Loading…</option></select></label>
-<label>Concentration <span class="unit">(mol/kg)</span><select id="concentration" required><option value="">Loading…</option></select></label>
-<div class="input-note">The backend retrieves the corresponding OEDB record and constructs model inputs automatically. Do not enter derived properties manually.</div>
-<button class="primary-button" id="predict-button" type="submit">Predict conductivity <span>→</span></button><div id="form-message" class="form-message" role="status"></div>
-</form>
-<section class="results-panel"><div class="results-head"><div><div class="eyebrow">MODEL OUTPUT</div><h3>Predicted conductivity</h3></div><span class="unit">mS/cm</span></div>
-<div class="model-results">
-<article class="model-card"><div class="model-name"><span class="model-symbol hgb">H</span><div><strong>HGB-SVR</strong><small>Tabular ML</small></div></div><div class="prediction-value" id="hgb-value">—</div><div class="prediction-meta" id="hgb-meta">Model not connected</div></article>
-<article class="model-card"><div class="model-name"><span class="model-symbol smi">S</span><div><strong>SMI-TED</strong><small>Molecular foundation model</small></div></div><div class="prediction-value" id="smi-value">—</div><div class="prediction-meta" id="smi-meta">Model not connected</div></article>
-</div><div class="result-footnote" id="uncertainty-note">Prediction intervals will appear after independent uncertainty calibration.</div></section>
-</div>
-<div class="model-status-panel"><div class="panel-title">Model availability</div><div class="status-grid"><div><span id="hgb-dot" class="status-dot muted"></span><strong>HGB-SVR</strong><span id="hgb-status">Checking adapter</span></div><div><span id="smi-dot" class="status-dot muted"></span><strong>SMI-TED</strong><span id="smi-status">Checking adapter</span></div></div></div>
-</section>
-<section id="view-explore" class="view">
-<div class="section-heading"><div><div class="eyebrow">02 / DATA EXPLORER</div><h2>Explore electrolyte records</h2><p>Filter the source dataset and inspect conductivity trends.</p></div><span class="data-count" id="data-count">Loading dataset…</span></div>
-<div class="filter-row"><label>Cation<select id="filter-cation"><option value="">All cations</option></select></label><label>Anion<select id="filter-anion"><option value="">All anions</option></select></label><label>Solvent<select id="filter-solvent"><option value="">All solvents</option></select></label><button id="clear-filters" class="secondary-button">Clear filters</button></div>
-<div class="chart-panel"><div class="panel-title">Conductivity vs concentration</div><div id="conductivity-chart" class="chart"></div></div>
-<div class="table-panel"><div class="panel-title">Matching OEDB records <span id="record-count" class="muted-text"></span></div><div class="table-scroll"><table><thead><tr><th>Cation</th><th>Anion</th><th>Solvent</th><th>Concentration (mol/kg)</th><th>Conductivity (mS/cm)</th><th>Viscosity (mPa·s)</th><th>Density (g/cm³)</th></tr></thead><tbody id="records-body"><tr><td colspan="7">Loading records…</td></tr></tbody></table></div></div>
-</section>
-<section id="view-about" class="view"><div class="section-heading"><div><div class="eyebrow">03 / ABOUT</div><h2>About this platform</h2><p>A research interface for electrolyte data exploration and conductivity prediction.</p></div></div>
-<div class="about-grid">
-<article class="about-card"><div class="eyebrow">DATA</div><h3>Open Electrolyte Database</h3><p>The prototype uses the OEDB computational dataset included with this research repository. Dataset version and record count are reported by the API.</p><a href="https://oedb.jp" target="_blank" rel="noreferrer">Visit OEDB ↗</a></article>
-<article class="about-card"><div class="eyebrow">MODEL 01</div><h3>HGB-SVR</h3><p>A conventional tabular machine-learning model. The original trained estimator and preprocessing pipeline must be connected without changing feature construction.</p></article>
-<article class="about-card"><div class="eyebrow">MODEL 02</div><h3>SMI-TED</h3><p>A molecular foundation model combined with numerical formulation features. The original tokenizer, fine-tuned checkpoint and 47-feature pipeline must be preserved.</p></article>
-</div><p class="citation">OEDB data are distributed under CC BY 4.0. Please cite the original OEDB publication when using the data.</p></section>
-</main>
-<footer><span>Electrolyte Intelligence</span><span>Research prototype · Model outputs require validation</span></footer>
-<script src="/static/app.js"></script>
-</body></html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{title}} · Electrolyte Atlas</title><meta name="description" content="Explore OEDB simulation records and study ionic conductivity at 298 K.">
+<link rel="icon" href="/static/mark.svg"><link rel="stylesheet" href="/static/styles.css"><script type="module" src="/static/app.js"></script></head>
+<body data-page="{{page}}"><a class="skip" href="#main">Skip to content</a>
+<header><div class="container mast"><a class="brand" href="/"><img src="/static/mark.svg" alt="" width="35" height="35">Electrolyte Atlas</a>
+<nav aria-label="Main navigation">{{nav}}</nav><a class="source" href="https://github.com/AJ-IITI/ML-Guided-Discovery-of-High-Performance-Electrolyte/tree/website-mvp">Project repository <span aria-hidden="true">↗</span></a></div></header>
+<main id="main" class="container">{{body}}<p class="alert" id="error" role="alert" hidden></p></main>
+<footer><div class="container foot"><span><strong>Electrolyte Atlas</strong> &nbsp; / &nbsp; Ionic conductivity research</span><div><a href="https://doi.org/10.1038/s41524-026-02093-y">Dataset citation ↗</a><a href="/docs">API documentation ↗</a></div></div></footer></body></html>

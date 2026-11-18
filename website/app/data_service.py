@@ -67,7 +67,7 @@ def summary():
                 median_conductivity=median(labels) if labels else None,temperature_K=298,
                 source='OEDB molecular dynamics',snapshot='2026-05-11',choices=choices,
                 solvent_names={s:SOLVENT_NAMES.get(s,s) for s in choices['solvent']},
-                systems=len({k[:3] for k in domain()}))
+                salt_pairs=len({k[:2] for k in domain()}),systems=len({k[:3] for k in domain()}))
 
 def select(q='',cation=None,anion=None,solvent=None,availability=None,concentration=None):
     words=q.strip().casefold().split()
